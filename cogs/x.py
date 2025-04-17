@@ -19,6 +19,7 @@ class X(commands.Cog):
         
     # 當機器人完成啟動時
     async def cog_load(self):
+        await self.x_api.initialize()
         self.update_new_tweets.start()
         self.update_channel_info.start()
         

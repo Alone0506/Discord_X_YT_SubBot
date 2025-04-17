@@ -1,0 +1,12 @@
+services:
+  bot:
+    image: 'discord_test_bot'
+    container_name: 'test_bot'
+    build:
+      context: .
+    volumes:
+      - db:/app/db
+      - log:/app/log
+volumes:
+  db:
+  log:

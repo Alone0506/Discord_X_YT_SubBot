@@ -15,10 +15,13 @@ bot = commands.Bot(command_prefix = '&', intents = discord.Intents.all())
 
     
 def setting_log():
+    # Clean up old log files
     log_folder_path = Path(__file__).parent / "log"
-    if log_folder_path.exists():
-        shutil.rmtree(log_folder_path)
-    log_folder_path.mkdir(exist_ok=True)
+    for item in log_folder_path.iterdir():
+        if item.is_file() or item.is_symlink():
+            item.unlink()
+        elif item.is_dir():
+            shutil.rmtree(item)
 
     for x in ['bot', 'api']:
         handler = TimedRotatingFileHandler(
