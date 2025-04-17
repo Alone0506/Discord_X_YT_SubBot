@@ -10,7 +10,7 @@
   - 提供影片詳細資訊（長度、狀態、上傳時間等）
 
 - **X（Twitter）訂閱功能**
-  - 自動追蹤X平台用戶的新貼文
+  - 自動追蹤 X 平台用戶的新貼文
   - 提供貼文連結
 
 - **完整的訂閱管理系統**
@@ -65,6 +65,12 @@
    ```
    python bot.py
    ```
+## 部屬到雲端
+
+依照以下文章可用 Docker Hub 部屬在 Synology Nas 上運作:
+
+1. [如何使用 Docker 打包 Discord Bot 並發佈到 Docker Hub](https://ted.familyds.com/2025/03/10/%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8-docker-%e6%89%93%e5%8c%85-discord-bot-%e4%b8%a6%e7%99%bc%e4%bd%88%e5%88%b0-docker-hub/)
+2. [使用 Synology Container Manager 部屬 Discord Bot](https://ted.familyds.com/2025/03/10/%e4%bd%bf%e7%94%a8-synology-container-manager-%e9%83%a8%e5%b1%ac-discord-bot/)
 
 ## 機器人指令說明
 
