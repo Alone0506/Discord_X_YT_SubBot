@@ -115,7 +115,7 @@ class Youtube(commands.Cog):
             if info['follower_cnt'] == 0:
                 data[useranme]['last_updated'] = utcnow().isoformat()
                 continue
-            new_video_infos, last_updated = self.yt_api.get_new_videos(info['upload_ids'], datetime.fromisoformat(info['last_updated']))
+            new_video_infos, last_updated = self.yt_api.get_new_videos(info['uploads_id'], datetime.fromisoformat(info['last_updated']))
             new_video_embeds = [self.__create_embed(video_info, info['icon_url']) for video_info in new_video_infos]
             for follower in self.db.get_followers('yt', useranme):
                 if user := self.bot.get_user(int(follower)):
