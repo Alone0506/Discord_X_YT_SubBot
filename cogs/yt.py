@@ -3,6 +3,7 @@ import logging
 import re
 
 import discord
+from discord.utils import utcnow
 from discord.ext import commands, tasks
 
 from api.yt_api import YoutubeAPI
@@ -54,7 +55,8 @@ class Youtube(commands.Cog):
         time = datetime.fromisoformat(video_info_time)
         delta = time - datetime(1970, 1, 1, tzinfo=time.tzinfo)
         # discord timestamp(ex: 2024年1月8日星期一 16:23)
-        return f"<t:{int(delta.total_seconds())}:F>, <t:{int(delta.total_seconds())}:R>"
+        # source code: https://github.com/Rapptz/discord.py/blob/26855160f8a8f0dfade609cce6b1bc97f8b8fa14/discord/utils.py#L1240
+        return f"<t:{int(delta.total_seconds())}:f>, <t:{int(delta.total_seconds())}:R>"
     
     def __create_embed(self, video_info: dict, channel_icon_url: str) -> discord.Embed:
         video_id = self.yt_api.analyze_data(video_info, ['id'])
@@ -66,7 +68,7 @@ class Youtube(commands.Cog):
         # create embed
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         channel_url = f'https://www.youtube.com/channel/{channel_id}'
-        embed = discord.Embed(color=YT_COLOR, title=video_title, url=video_url, timestamp=datetime.now())
+        embed = discord.Embed(color=YT_COLOR, title=video_title, url=video_url, timestamp=utcnow())
         embed.set_author(name=channel_title, url=channel_url, icon_url=channel_icon_url)
         embed.set_thumbnail(url=channel_icon_url)
         embed.set_image(url=video_thumbnail_url)
@@ -111,7 +113,7 @@ class Youtube(commands.Cog):
         
         for useranme, info in data.items():
             if info['follower_cnt'] == 0:
-                data[useranme]['last_updated'] = datetime.now(timezone.utc).isoformat()
+                data[useranme]['last_updated'] = utcnow().isoformat()
                 continue
             new_video_infos, last_updated = self.yt_api.get_new_videos(info['upload_ids'], datetime.fromisoformat(info['last_updated']))
             new_video_embeds = [self.__create_embed(video_info, info['icon_url']) for video_info in new_video_infos]

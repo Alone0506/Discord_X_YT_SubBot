@@ -52,7 +52,7 @@ class XAPI:
                         logger.error(f"Error initializing XAPI: {e}")
                         
         
-    async def get_new_user_info(self, username: str) -> dict:
+    async def get_new_user_info(self, username: str) -> dict[str, str]:
         """
         input:
             username: the username of an X user

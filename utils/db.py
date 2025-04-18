@@ -4,6 +4,8 @@ from pathlib import Path
 import sqlite3
 from typing import Literal
 
+from discord.utils import utcnow
+
 logger = logging.getLogger('discord')
 
 # 資料庫路徑
@@ -156,7 +158,7 @@ class DB:
                 channel_data['icon_url'],
                 channel_data['uploads_id'],
                 channel_data['description'],
-                datetime.now(timezone.utc).isoformat()
+                utcnow().isoformat()
             ))
             conn.commit()
             return True
@@ -273,7 +275,7 @@ class DB:
                 data['title'],
                 data['icon_url'],
                 data['description'],
-                datetime.now(timezone.utc).isoformat()
+                utcnow().isoformat()
             ))
             conn.commit()
             return True
