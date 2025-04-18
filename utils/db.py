@@ -13,7 +13,6 @@ DB_PATH = str(BASE_PATH / 'db' / 'sub.db')
 class DB:
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
-        self.logger = logging.getLogger('discord')
         
     def _get_connection(self):
         """取得資料庫連接並啟用外鍵約束"""
@@ -36,7 +35,7 @@ class DB:
             id TEXT NOT NULL,
             title TEXT NOT NULL,
             icon_url TEXT,
-            upload_id TEXT,
+            uploads_id TEXT,
             description TEXT,
             follower_cnt INTEGER DEFAULT 0,
             last_updated TEXT
@@ -49,7 +48,7 @@ class DB:
             icon_url TEXT,
             description TEXT,
             follower_cnt INTEGER DEFAULT 0,
-            last_post_id TEXT
+            last_updated TEXT
         );
 
         -- Discord-YouTube 訂閱關係
@@ -148,7 +147,7 @@ class DB:
         try:
             cursor.execute("""
                 INSERT INTO yt_users 
-                (username, id, title, icon_url, upload_id, description, last_updated) 
+                (username, id, title, icon_url, uploads_id, description, last_updated) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
                 username, 
@@ -162,7 +161,7 @@ class DB:
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"新增YouTube使用者失敗: {e}")
+            logger.error(f"新增YouTube使用者失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -202,7 +201,7 @@ class DB:
             conn.commit()
             return results
         except Exception as e:
-            self.logger.error(f"批量更新 YT 使用者失敗: {e}")
+            logger.error(f"更新多個 YT 使用者失敗: {e}")
             conn.rollback()
             return {username: False for username in users_data.keys()}
         finally:
@@ -223,7 +222,7 @@ class DB:
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"批次刪除YouTube使用者失敗: {e}")
+            logger.error(f"刪除多個 YouTube 使用者失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -267,19 +266,19 @@ class DB:
         try:
             cursor.execute("""
                 INSERT INTO x_users 
-                (username, title, icon_url, description, last_post_id)
+                (username, title, icon_url, description, last_updated)
                 VALUES (?, ?, ?, ?, ?)
             """, (
                 username, 
                 data['title'],
                 data['icon_url'],
                 data['description'],
-                data['last_post_id']
+                datetime.now(timezone.utc).isoformat()
             ))
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"新增X使用者失敗: {e}")
+            logger.error(f"新增 X 使用者失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -302,7 +301,7 @@ class DB:
                 query_parts = []
                 
                 for key, value in data.items():
-                    if key in ['title', 'icon_url', 'description', 'last_post_id']:
+                    if key in ['title', 'icon_url', 'description', 'last_updated']:
                         query_parts.append(f"{key} = ?")
                         params.append(value)
                 
@@ -319,7 +318,7 @@ class DB:
             conn.commit()
             return results
         except Exception as e:
-            self.logger.error(f"批量更新X使用者失敗: {e}")
+            logger.error(f"更新多個 X 使用者失敗: {e}")
             conn.rollback()
             return {username: False for username in users_data.keys()}
         finally:
@@ -341,7 +340,7 @@ class DB:
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"刪除 X 使用者失敗: {e}")
+            logger.error(f"刪除多個 X 使用者失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -385,7 +384,7 @@ class DB:
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"新增訂閱失敗: {e}")
+            logger.error(f"DC 新增訂閱失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -413,7 +412,7 @@ class DB:
             conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"移除訂閱失敗: {e}")
+            logger.error(f"DC 移除訂閱失敗: {e}")
             conn.rollback()
             return False
         finally:
@@ -439,7 +438,7 @@ class DB:
             followers = [row[0] for row in cursor.fetchall()]
             return followers
         except Exception as e:
-            self.logger.error(f"取得訂閱者列表失敗: {e}")
+            logger.error(f"取得 YT or X 訂閱者列表失敗: {e}")
             return []
         finally:
             conn.close()

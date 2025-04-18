@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ X_PASSWORD = os.getenv("X_PASSWORD", "")
 BASE_PATH = Path(__file__).parent.parent
 SESSION_PATH = str(BASE_PATH / 'db' / 'x_session')
 
-logger = logging.getLogger('api')
+logger = logging.getLogger('discord')
 
 class XAPI:
     _instance = None  # 儲存單一實例
@@ -50,52 +51,96 @@ class XAPI:
                         logger.error(f"Error initializing XAPI: {e}")
                         
         
-    async def get_user_info(self, username: str) -> dict:
+    async def get_new_user_info(self, username: str) -> dict:
         """
         input:
             username: user's x id
         output:
-            dict: user info
+            dict: user info, include:
+                - 'title': user's name
+                - 'icon_url': user's icon url
+                - 'description': user's description
         """
         await self.initialize()
         
         try:
             user: User = await self.app.get_user_info(username)
-            _, last_post_id = await self.get_new_tweets(username, "0")
+            return {
+                "title": user.name,
+                "icon_url": user.profile_image_url_https,
+                "description": user.description,
+            }
+            
         except Exception as e:
-            logger.error(f"Error in x_api.py: get_user_info: {e}")
+            logger.error(f"Error in x_api.py: get_new_user_info: {e}")
             return {}
-        return {
-            "title": user.name,
-            "icon_url": user.profile_image_url_https,
-            "description": user.description,
-            "last_post_id": last_post_id,
-        }
     
-    async def get_new_tweets(self, username: str, last_post_id: str) -> tuple[list[str], str]:
+    async def get_new_tweets(self, username: str, last_updated_str: str) -> tuple[list[str], list[dict[str, str]], str]:
         """
+        取得使用者自上次更新後發布的所有新推文。
+        
+        過濾條件:
+        1. 排除非 Tweet 類型的內容
+        2. 排除轉推 (Retweet)
+        3. 只保留在 last_updated 時間之後發布的推文
+        
         input:
-            username: user's x id
-            last_post_id: user's last post id
+            username: X 平台上的使用者名稱或 ID
+            last_updated_str: , ISO 格式的時間字符串，表示上次檢查的時間點
+            
         output:
-            list[str]: 所有 post's id > last_post_id 的 post's url
-            last_post_id: 所有new posts's id 與 last_post_id 的最大值
+            urls: 所有新推文的 URL 列表，按發布時間由早到晚排序
+            author_info: 作者信息，包含以下鍵值:
+                - 'name': 作者名稱
+                - 'icon_url': 作者頭像 URL
+                - 'description': 作者個人簡介
+            latest_time: 最新推文的發布時間 (ISO 格式)，如無新推文則為輸入的 last_updated_str
+            
+        Raises:
+            如有異常會被捕獲並記錄到日誌，函數會返回空列表、空字典和原始的 last_updated_str。
+        
+        Example:
+            ```python
+            urls, author_info, latest_time = await api.get_new_tweets('elonmusk', '2023-04-18T12:00:00+00:00')
+            for url in urls:
+                print(f"發現新推文: {url}")
+            ```
         """
+        def valid_tweet(tweet, last_updated: datetime) -> bool:
+            if not isinstance(tweet, Tweet):
+                return False
+            if tweet.is_retweet:
+                return False
+            if tweet.created_on <= last_updated:
+                return False
+            return True
+        
         await self.initialize()
         
         try:
-            valid_tweets:list[Tweet] = []
+            last_updated: datetime = datetime.fromisoformat(last_updated_str)
             tweets = await self.app.get_tweets(username)
-            for tweet in tweets.tweets:
-                if isinstance(tweet, Tweet) and int(tweet.id) > int(last_post_id) and not tweet.is_retweet:
-                    valid_tweets.append(tweet)
-                    
-            valid_tweets.sort(key=lambda x: x.id)
+            valid_tweets = [tweet for tweet in tweets.tweets if valid_tweet(tweet, last_updated)]
+            valid_tweets.sort(key=lambda x: x.created_on)
+            
+            urls = [tweet.url for tweet in valid_tweets]
+            
+            author_info = {}
+            if tweets:
+                author_info = {
+                    'title': tweets[0].author.name,
+                    'icon_url': tweets[0].author.profile_image_url_https,
+                    'description': tweets[0].author.description,
+                }
+            else:
+                await asyncio.sleep(10)
+                author_info = await self.get_new_user_info(username)
+            
             if valid_tweets:
-                last_post_id = str(valid_tweets[-1].id)
-                            
-            return [x.url for x in valid_tweets], last_post_id
-    
+                last_updated_str = valid_tweets[-1].created_on.isoformat()
+                
+            return urls, author_info, last_updated_str
+            
         except Exception as e:
             logger.error(f"Error in x_api.py: get_new_tweets: {e}")
-            return [], last_post_id
+            return [], {}, last_updated_str

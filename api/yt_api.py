@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 
 YT_API_KEY = os.getenv("YT_API_KEY", "")
 
-logger = logging.getLogger('api')
+logger = logging.getLogger('discord')
 
 class YoutubeAPI:
     def __init__(self):

@@ -8,7 +8,7 @@ from api.x_api import XAPI
 from api.yt_api import YoutubeAPI
 from utils import YT_COLOR, X_COLOR, SUB_EMBED_COLOR, MAX_EMBED_LIMIT, MAX_OPTION_LIMIT, DB
 
-logger = logging.getLogger('bot')
+logger = logging.getLogger('discord')
 
 
 class YTUserEmbed(discord.Embed):
@@ -191,7 +191,7 @@ class Main(commands.Cog):
                 await interaction.followup.send(content="頻道已存在", ephemeral=True)
                 return
             
-            if x_data := await XAPI().get_user_info(username):
+            if x_data := await XAPI().get_new_user_info(username):
                 self.db.add_x_user(username, x_data)
                 await interaction.followup.send(content="頻道已新增", embed=XUserEmbed(username, x_data), ephemeral=True)
             else:
