@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime
 import logging
 import os
 from pathlib import Path
@@ -23,7 +23,8 @@ class XAPI:
     _initialized = False  # 標記是否已初始化
     
     def __new__(cls, *args, **kwargs):
-        # 確保只建立一個實例
+        # 確保只建立一個實例, 避免每次呼叫 XAPI 時都重新 initialze 一次,
+        # 這樣會導致每次都登入一次, 有機會被鎖帳號
         if cls._instance is None:
             cls._instance = super(XAPI, cls).__new__(cls)
         return cls._instance
@@ -54,7 +55,7 @@ class XAPI:
     async def get_new_user_info(self, username: str) -> dict:
         """
         input:
-            username: user's x id
+            username: the username of an X user
         output:
             dict: user info, include:
                 - 'title': user's name
