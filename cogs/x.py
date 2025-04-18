@@ -25,7 +25,7 @@ class X(commands.Cog):
     async def cog_unload(self):
         self.update_new_tweets.cancel()
 
-    # 因為 api 有使用限制, 所以設定固定時間檢查一位 x's user 的新 post
+    # 因為 api 有使用限制, 所以設定固定時間檢查一位 x's user 的新 tweet
     @tasks.loop(minutes=2)
     async def update_new_tweets(self):
         """
