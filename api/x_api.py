@@ -40,16 +40,19 @@ class XAPI:
                 # 再次檢查，防止其他協程在等待鎖時已初始化
                 if not XAPI._initialized:
                     try:
-                        # 避免get_user_info時出現 OSError: [WinError 6]
-                        logger.info(f"system plarform: {sys.platform}")
-                        if sys.platform == 'win32':
-                            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+                        self._setup_event_loop_policy()
                         
                         await self.app.start(X_USERNAME, X_PASSWORD)
                         XAPI._initialized = True
                         logger.info("XAPI initialized successfully")
                     except Exception as e:
                         logger.error(f"Error initializing XAPI: {e}")
+                        
+    def _setup_event_loop_policy(self):
+        """避免get_user_info時出現 OSError: [WinError 6]"""
+        logger.info(f"system plarform: {sys.platform}")
+        if sys.platform == 'win32':
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
                         
         
     async def get_new_user_info(self, username: str) -> dict[str, str]:
