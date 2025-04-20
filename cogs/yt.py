@@ -132,7 +132,7 @@ class Youtube(commands.Cog):
             data[username]['title'] = info['title']
             data[username]['icon_url'] = info['icon_url']
             data[username]['description'] = info['description']
-        self.db.update_x_users(data)
+        self.db.update_yt_users(data)
 
 # Cog 載入 Bot 中
 async def setup(bot: commands.Bot):
