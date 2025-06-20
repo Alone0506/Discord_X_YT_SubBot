@@ -72,9 +72,9 @@
 1. [如何使用 Docker 打包 Discord Bot 並發佈到 Docker Hub](https://ted.familyds.com/2025/03/10/%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8-docker-%e6%89%93%e5%8c%85-discord-bot-%e4%b8%a6%e7%99%bc%e4%bd%88%e5%88%b0-docker-hub/)
 2. [使用 Synology Container Manager 部屬 Discord Bot](https://ted.familyds.com/2025/03/10/%e4%bd%bf%e7%94%a8-synology-container-manager-%e9%83%a8%e5%b1%ac-discord-bot/)
 
-## ⚠️ 部屬到 Linux 注意事項
+## ⚠️ 部屬到 Linux & Docker 打包注意事項
 
-如果要部屬到 Linux 上的話, 因為 requirement 裡面的 python-magic-bin 套件只適用於 Windows, 需要將 requirement.txt 內的 `python-magic-bin==0.4.14` 刪除, 另外安裝 libmagic 來代替，而libmagic在`Dockerfile`內處理完了
+如果要部屬到 Linux 或 Docker打包的話, 因為 requirement 裡面的 python-magic-bin 套件只適用於 Windows, 需要將 requirement.txt 內的 `python-magic-bin==0.4.14` 刪除, 另外安裝 libmagic 來代替，而libmagic在`Dockerfile`內處理完了
 
 ## 機器人指令說明
 
@@ -118,5 +118,5 @@
 ## 其餘事項
 
 - YouTube API 有使用配額限制，請留意 API 使用量
-- 由於使用第三方庫, 取得 X 的貼文時要注意時間間格
+- 由於使用第三方庫, 取得 X 的貼文時要注意，在短時間內取得大量貼文資料有機會被鎖
 - 用影片或貼文的上傳時間來判斷是否是新的影片或貼文
