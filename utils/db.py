@@ -116,7 +116,7 @@ class DB:
         return instance
     
     # YouTube相關操作
-    def get_yt_users(self, usernames: list[str] = None) -> dict[str, dict[str, str | int]]:
+    def get_yt_users(self, usernames: list[str] = []) -> dict[str, dict[str, str | int]]:
         """
         取得 YT 使用者資料
         如果有給 usernames, 則回傳這些使用者的資料
@@ -127,20 +127,16 @@ class DB:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
+        
         if usernames:
             placeholders = ', '.join(['?'] * len(usernames))
             cursor.execute(f"SELECT * FROM yt_users WHERE username IN ({placeholders})", usernames)
-            results = cursor.fetchall()
-            conn.close()
-            return {row['username']: dict(row) for row in results}
         else:
             cursor.execute("SELECT * FROM yt_users")
-            results = cursor.fetchall()
-            conn.close()
-            return {row['username']: dict(row) for row in results}
-        
-    
+        results = cursor.fetchall()
+        conn.close()
+        return {row['username']: dict(row) for row in results}
+
     def add_yt_user(self, username, channel_data):
         """新增YouTube使用者"""
         conn = self._get_connection()
@@ -231,7 +227,7 @@ class DB:
             conn.close()
     
     # X相關操作
-    def get_x_users(self, usernames: list[str] = None) -> dict[str, dict[str, str | int]]:
+    def get_x_users(self, usernames: list[str] = []) -> dict[str, dict[str, str | int]]:
         """
         取得 X 使用者資料
         如果有給 usernames, 則回傳這些使用者的資料
@@ -242,19 +238,15 @@ class DB:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
+        
         if usernames:
             placeholders = ', '.join(['?'] * len(usernames))
             cursor.execute(f"SELECT * FROM x_users WHERE username IN ({placeholders})", usernames)
-            results = cursor.fetchall()
-            conn.close()
-            return {row['username']: dict(row) for row in results}
         else:
             cursor.execute("SELECT * FROM x_users")
-            results = cursor.fetchall()
-            conn.close()
-            return {row['username']: dict(row) for row in results}
-        
+        results = cursor.fetchall()
+        conn.close()
+        return {row['username']: dict(row) for row in results}
 
     def add_x_user(self, username: str, data: dict[str, str]) -> bool:
         """

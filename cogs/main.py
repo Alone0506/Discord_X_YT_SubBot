@@ -76,8 +76,8 @@ class SubEmbed(discord.Embed):
         self.title = "訂閱中"
         yt_sub_username, x_sub_username = db.get_dc_user_subs(dc_id)
 
-        yt_sub_title = [user['title'] for user in db.get_yt_users(usernames=yt_sub_username).values()]
-        x_sub_title = [user['title'] for user in db.get_x_users(usernames=x_sub_username).values()]
+        yt_sub_title = [user['title'] for user in db.get_yt_users(yt_sub_username).values()]
+        x_sub_title = [user['title'] for user in db.get_x_users(x_sub_username).values()]
         
         yt_value = []
         for title, username in zip(yt_sub_title, yt_sub_username):
@@ -175,7 +175,7 @@ class Main(commands.Cog):
             username = username[1:]
             
         if platform == 'YT':
-            if self.db.get_yt_users(usernames=[username]):
+            if self.db.get_yt_users([username]):
                 await interaction.followup.send(content="頻道已存在", ephemeral=True)
                 return
 
@@ -187,7 +187,7 @@ class Main(commands.Cog):
                 
                     
         elif platform == 'X':
-            if self.db.get_x_users(usernames=[username]):
+            if self.db.get_x_users([username]):
                 await interaction.followup.send(content="頻道已存在", ephemeral=True)
                 return
             

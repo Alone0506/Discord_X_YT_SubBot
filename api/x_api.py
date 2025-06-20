@@ -46,7 +46,7 @@ class XAPI:
             user: User = await app.get_user_info(username)
             return {
                 "title": user.name,
-                "icon_url": user.profile_image_url_https,
+                "icon_url": f"https://unavatar.io/twitter/{user.username}",
                 "description": user.description,
             }
             
@@ -96,6 +96,7 @@ class XAPI:
                 return False
             return True
         
+        global app
         try:
             last_updated: datetime = datetime.fromisoformat(last_updated_str)
             tweets = await app.get_tweets(username)
@@ -129,7 +130,6 @@ class XAPI:
                 if session_path.exists():
                     session_path.unlink()
                     logger.info(f"Deleted session file: {session_path}")
-            global app
             app = tweety.Twitter(str(Path(__file__).parent.parent / 'db' / 'x_session'))
             await app.start(X_USERNAME, X_PASSWORD)
             
