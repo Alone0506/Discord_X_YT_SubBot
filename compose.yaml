@@ -1,6 +1,6 @@
 services:
   bot:
-    image: 'discord_test_bot'
+    image: 'discord_yt_x_sub_bot'
     container_name: 'test_bot'
     build:
       context: .
